@@ -14,7 +14,9 @@ export class GiftService {
   private ServiceUrl: string = 'https://api.giphy.com/v1/gifs';
   private _TagsHistory: string[] = [];
 
-  constructor( private http: HttpClient){} //Inyectamos el servicio HttpClient
+  constructor( private http: HttpClient){
+    this.LoadLocalStorage();
+  } //Inyectamos el servicio HttpClient
 
 
   get tagsHistory(): string[] {
@@ -29,6 +31,22 @@ export class GiftService {
 
     this._TagsHistory.unshift(tag); //Agregamos el tag al inicio del array
     this._TagsHistory = this.tagsHistory.splice(0,10); //Limitamos el historial a 10 elementos
+    this.saveLocalStorage();
+  }
+
+  private saveLocalStorage():void{
+    localStorage.setItem('history', JSON.stringify(this._TagsHistory))
+  }
+  private LoadLocalStorage():void{
+     if (!localStorage.getItem('history')) return;
+      this._TagsHistory = JSON.parse(localStorage.getItem('history')!); //Usamos el signo de admiracion para indicar que estamos seguros de que el valor no es nulo
+
+      this.showLastSearch();//Cargamos el historial de busqueda al iniciar la aplicacion
+
+  }
+  private showLastSearch():void{
+    if(this._TagsHistory.length === 0) return;
+    this.searchTag(this._TagsHistory[0]);
   }
 
   async searchTag( tag: string): Promise<void>{
@@ -46,7 +64,7 @@ export class GiftService {
     // solicitamos la informacion al servidor por medio de la url y utilizacion de http
     this.http.get<SearchResponse>(`${this.ServiceUrl}/search`, { params }).subscribe((resp => {
       this.giftList = resp.data;
-      console.log(this.giftList);
+     // console.log(this.giftList);
 
 
     }))
