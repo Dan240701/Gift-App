@@ -22,5 +22,7 @@ public tagInput!: ElementRef<HTMLInputElement>
 
   console.log(this.giftService.tagsHistory);
 
+  this.tagInput.nativeElement.value = ''; //Limpiamos el input
+
  }
 }
